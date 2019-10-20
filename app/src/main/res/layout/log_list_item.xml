@@ -6,9 +6,27 @@
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/log_date"
-        android:layout_width="fill_parent"
+        android:id="@+id/log_text"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_margin"
-        />
+        android:layout_marginLeft="@dimen/margin_big"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_weight="5"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:hint="log text will be here"
+        android:textSize="@dimen/text_medium" />
+
+    <TextView
+        android:id="@+id/happyRating"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginRight="@dimen/margin_big"
+        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:hint="5"
+        android:textSize="@dimen/text_medium" />
 </LinearLayout>

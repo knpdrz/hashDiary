@@ -14,10 +14,10 @@
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/logs"
         android:gravity="center"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:paddingBottom="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/margin_big"
+        android:paddingBottom="@dimen/margin_big"
         android:fontFamily="sans-serif-condensed-medium"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_big"
         />
 
     <ListView

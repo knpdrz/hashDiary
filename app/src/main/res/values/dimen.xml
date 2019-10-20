@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="standard_margin">24dp</dimen>
+    <dimen name="margin_big">24dp</dimen>
+    <dimen name="margin_medium">18dp</dimen>
+    <dimen name="margin_small">12dp</dimen>
+    <dimen name="text_very_big">32sp</dimen>
+    <dimen name="text_big">24sp</dimen>
+    <dimen name="text_medium">18sp</dimen>
 </resources>
