@@ -21,7 +21,7 @@
         />
 
     <ListView
-        android:id="@+id/logs"
+        android:id="@+id/logs_list_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
