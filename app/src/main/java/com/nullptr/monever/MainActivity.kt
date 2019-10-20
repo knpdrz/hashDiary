@@ -10,19 +10,16 @@ import java.util.logging.Logger
 
 
 const val CREATE_NEW_LOG_REQUEST = 1
-const val LOG_TEXT_FROM_INTENT = "LOG_TEXT_FROM_INTENT"
+const val LOG_FROM_INTENT = "LOG_FROM_INTENT"
 const val HAPPY_RATING_FROM_INTENT = "HAPPY_RATING_FROM_INTENT"
 
 class MainActivity : AppCompatActivity() {
     val logger = Logger.getLogger("foo")
 
     private var logsList = mutableListOf(
-        "log1",
-        "logX",
-        "log1",
-        "logX",
-        "log1",
-        "logXXXX"
+        Log("log1",0),
+        Log("log4324234",10),
+        Log("log333",7)
     )
     private lateinit var listAdapter: LogAdapter
 
@@ -53,8 +50,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 resultIntent?.also {
                     val newLog =
-                        resultIntent.getStringExtra(LOG_TEXT_FROM_INTENT) + ", " + resultIntent.getStringExtra(
-                            HAPPY_RATING_FROM_INTENT)
+                        resultIntent.getSerializableExtra(LOG_FROM_INTENT) as Log
                     logsList.add(newLog)
                     listAdapter.notifyDataSetChanged()
 

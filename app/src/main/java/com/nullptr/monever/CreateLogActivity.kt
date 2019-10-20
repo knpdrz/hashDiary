@@ -14,8 +14,7 @@ class CreateLogActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             Intent().also { resultIntent ->
-                resultIntent.putExtra(LOG_TEXT_FROM_INTENT, logInput.text.toString())
-                resultIntent.putExtra(HAPPY_RATING_FROM_INTENT, happinessRatingBar.progress.toString())
+                resultIntent.putExtra(LOG_FROM_INTENT, Log(logInput.text.toString(), happinessRatingBar.progress))
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }

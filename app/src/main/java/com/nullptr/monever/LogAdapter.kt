@@ -8,10 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 
 
-/**
- * Created by Moon on 20.10.2019.
- */
-class LogAdapter(private val context: Context, private var logs: List<String>) : BaseAdapter() {
+class LogAdapter(val context: Context, var logs: List<Log>) : BaseAdapter() {
 
     override fun getCount(): Int {
         return logs.size
@@ -29,8 +26,10 @@ class LogAdapter(private val context: Context, private var logs: List<String>) :
         val inflater = context
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = inflater.inflate(R.layout.log_list_item, viewGroup, false)
-        val textView = rowView.findViewById(R.id.log_date) as TextView
-        textView.text = logs[i]
+        val textView = rowView.findViewById(R.id.log_text) as TextView
+        val happyCountTextView = rowView.findViewById(R.id.happyRating) as TextView
+        textView.text = logs[i].text
+        happyCountTextView.text = logs[i].happyRating.toString()
         return rowView
     }
 }
