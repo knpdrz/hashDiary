@@ -11,6 +11,7 @@ import java.util.logging.Logger
 
 const val CREATE_NEW_LOG_REQUEST = 1
 const val LOG_TEXT_FROM_INTENT = "LOG_TEXT_FROM_INTENT"
+const val HAPPY_RATING_FROM_INTENT = "HAPPY_RATING_FROM_INTENT"
 
 class MainActivity : AppCompatActivity() {
     val logger = Logger.getLogger("foo")
@@ -31,14 +32,14 @@ class MainActivity : AppCompatActivity() {
 
         prepareListView()
 
-        add_log.setOnClickListener {
+        addLogButton.setOnClickListener {
             createNewLog()
         }
     }
 
     private fun prepareListView() {
         listAdapter = LogAdapter(this, logsList)
-        logs_list_view.adapter = listAdapter
+        logsListView.adapter = listAdapter
     }
 
     private fun createNewLog() {
@@ -52,7 +53,8 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 resultIntent?.also {
                     val newLog =
-                        resultIntent.getStringExtra(LOG_TEXT_FROM_INTENT)
+                        resultIntent.getStringExtra(LOG_TEXT_FROM_INTENT) + ", " + resultIntent.getStringExtra(
+                            HAPPY_RATING_FROM_INTENT)
                     logsList.add(newLog)
                     listAdapter.notifyDataSetChanged()
 

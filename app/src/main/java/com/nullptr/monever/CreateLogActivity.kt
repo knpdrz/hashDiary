@@ -12,9 +12,10 @@ class CreateLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_log)
 
-        save_button.setOnClickListener {
-            Intent().also {
-                resultIntent -> resultIntent.putExtra(LOG_TEXT_FROM_INTENT, log_input.text.toString())
+        saveButton.setOnClickListener {
+            Intent().also { resultIntent ->
+                resultIntent.putExtra(LOG_TEXT_FROM_INTENT, logInput.text.toString())
+                resultIntent.putExtra(HAPPY_RATING_FROM_INTENT, happinessRatingBar.progress.toString())
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }
