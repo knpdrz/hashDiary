@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import java.text.SimpleDateFormat
 
+const val datePattern = "dd/MM HH:mm"
 
-class LogAdapter(val context: Context, var logs: List<Log>) : BaseAdapter() {
+class LogAdapter(private val context: Context, var logs: List<Log>) : BaseAdapter() {
 
     override fun getCount(): Int {
         return logs.size
@@ -26,10 +28,15 @@ class LogAdapter(val context: Context, var logs: List<Log>) : BaseAdapter() {
         val inflater = context
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = inflater.inflate(R.layout.log_list_item, viewGroup, false)
-        val textView = rowView.findViewById(R.id.log_text) as TextView
+        val textView = rowView.findViewById(R.id.logText) as TextView
         val happyCountTextView = rowView.findViewById(R.id.happyRating) as TextView
+        val logDateTextView = rowView.findViewById(R.id.logDate) as TextView
         textView.text = logs[i].text
         happyCountTextView.text = logs[i].happyRating.toString()
+
+        val df = SimpleDateFormat(datePattern)
+        val logCreationDate = df.format(logs[i].creationDate)
+        logDateTextView.text = logCreationDate
         return rowView
     }
 }

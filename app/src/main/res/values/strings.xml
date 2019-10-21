@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">monever</string>
+    <string name="app_name">Hash Diary</string>
     <string name="logs">Logs</string>
     <string name="save">Save</string>
     <string name="log_text_label">What would you like to log?</string>

@@ -18,7 +18,13 @@ class MainActivity : AppCompatActivity() {
 
     private var logsList = mutableListOf(
         Log("log1",0),
-        Log("log4324234",10),
+        Log("logXX",10),
+        Log("logXX",10),
+        Log("logXX",10),
+        Log("logXX",10),
+        Log("logXX",10),
+        Log("logXX",10),
+        Log("logXX",10),
         Log("log333",7)
     )
     private lateinit var listAdapter: LogAdapter

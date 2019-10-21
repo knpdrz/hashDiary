@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_create_log.*
+import java.util.*
 
 class CreateLogActivity : AppCompatActivity() {
 
@@ -14,7 +15,7 @@ class CreateLogActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             Intent().also { resultIntent ->
-                resultIntent.putExtra(LOG_FROM_INTENT, Log(logInput.text.toString(), happinessRatingBar.progress))
+                resultIntent.putExtra(LOG_FROM_INTENT, Log(logInput.text.toString(), happinessRatingBar.progress, Calendar.getInstance().time))
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }

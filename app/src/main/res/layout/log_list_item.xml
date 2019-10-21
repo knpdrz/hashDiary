@@ -2,17 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/log_list_item"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="@dimen/log_height"
+    android:layout_marginTop="@dimen/margin_medium"
+    android:layout_marginBottom="@dimen/margin_medium"
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/log_text"
+        android:id="@+id/logDate"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/margin_big"
-        android:layout_marginTop="@dimen/margin_medium"
-        android:layout_marginBottom="@dimen/margin_medium"
-        android:layout_weight="5"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:hint="12/09"
+        android:gravity="top"
+        android:textSize="@dimen/text_small" />
+
+    <TextView
+        android:id="@+id/logText"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/margin_big"
+        android:layout_weight="6"
         android:fontFamily="sans-serif-condensed-medium"
         android:hint="log text will be here"
         android:textSize="@dimen/text_medium" />
@@ -20,13 +31,11 @@
     <TextView
         android:id="@+id/happyRating"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_height="match_parent"
         android:layout_marginRight="@dimen/margin_big"
-        android:layout_marginBottom="@dimen/margin_medium"
         android:layout_weight="1"
         android:fontFamily="sans-serif-condensed-medium"
+        android:gravity="end"
         android:hint="5"
         android:textSize="@dimen/text_medium" />
 </LinearLayout>
