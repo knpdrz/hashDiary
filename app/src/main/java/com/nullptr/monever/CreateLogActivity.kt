@@ -15,7 +15,16 @@ class CreateLogActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             Intent().also { resultIntent ->
-                resultIntent.putExtra(LOG_FROM_INTENT, Log(logInput.text.toString(), happinessRatingBar.progress, Calendar.getInstance().time))
+                val logText = logInput.text.toString()
+                resultIntent.putExtra(
+                    LOG_FROM_INTENT,
+                    Log(
+                        logText,
+                        happinessRatingBar.progress,
+                        Calendar.getInstance().time,
+                        LogParser().parseLog(logText)
+                    )
+                )
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }

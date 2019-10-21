@@ -10,7 +10,7 @@
         android:id="@+id/textInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/log_initial_input_height"
         android:layout_marginLeft="@dimen/margin_big"
         android:layout_marginTop="@dimen/margin_big"
         android:layout_marginRight="@dimen/margin_big"
@@ -20,8 +20,9 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/logInput"
+            android:gravity="top"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:helperText="@string/log_text_label"
             app:helperTextEnabled="true" />
 
