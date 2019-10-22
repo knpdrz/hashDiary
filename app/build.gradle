@@ -38,4 +38,5 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params:5.3.2"
     testImplementation "org.assertj:assertj-core:3.11.1"
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 }
