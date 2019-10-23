@@ -1,22 +1,25 @@
 package com.nullptr.monever
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.text.TextUtils
 import androidx.core.app.JobIntentService
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.PRIORITY_DEFAULT
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_ENTER
 import com.google.android.gms.location.GeofencingEvent
 import java.util.logging.Level.INFO
 import java.util.logging.Logger
 
 
 class GeofenceTransitionsJobIntentService : JobIntentService() {
-    val logger = Logger.getLogger("GeofenceTransitionsJobIntentService")
-    private val JOB_ID = 123
+    private val logger = Logger.getLogger("GeofenceTransitionsJobIntentService")
+    private val GEOFENCE_JOB_ID = 123
 
     fun enqueueWork(context: Context, intent: Intent) {
-        logger.log(INFO, "enqueuing work")
-        enqueueWork(context, GeofenceTransitionsJobIntentService::class.java, JOB_ID, intent)
+        enqueueWork(context, GeofenceTransitionsJobIntentService::class.java, GEOFENCE_JOB_ID, intent)
     }
 
     override fun onHandleWork(intent: Intent) {
@@ -27,36 +30,30 @@ class GeofenceTransitionsJobIntentService : JobIntentService() {
         }
         val geofenceTransition = geofencingEvent.geofenceTransition
 
-        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+        if (geofenceTransition == GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
             val triggeringGeofences = geofencingEvent.triggeringGeofences
-            val geofenceTransitionDetails =
-                getGeofenceTransitionDetails(geofenceTransition, triggeringGeofences)
-            logger.log(INFO, "geofence transition details $geofenceTransitionDetails")
-        } else {
-            logger.log(INFO, "invalid geotransition type")
+            logger.log(INFO, "geofence ${triggeringGeofences[0].requestId} entered or exited")
+            showNotification(triggeringGeofences[0].requestId, geofenceTransition == GEOFENCE_TRANSITION_ENTER)
         }
     }
 
-    private fun getGeofenceTransitionDetails(
-        geofenceTransition: Int,
-        triggeringGeofences: List<Geofence>
-    ): String {
-        val geofenceTransitionString = getTransitionString(geofenceTransition)
+    private fun showNotification(placeName: String, userEntered: Boolean) {
+        val notificationText = if(userEntered) getString(R.string.user_reached_place, placeName) else getString(R.string.user_left_place, placeName)
 
-        val triggeringGeofencesIdsList = arrayListOf<String>()
-        for (geofence in triggeringGeofences) {
-            triggeringGeofencesIdsList.add(geofence.requestId)
+        val intent = Intent(this, CreateLogActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val triggeringGeofencesIdsString = TextUtils.join(", ", triggeringGeofencesIdsList)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_heart_24dp)
+            .setContentTitle(getString(R.string.create_log))
+            .setContentText(notificationText)
+            .setPriority(PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true) //removes notification upon user tap
 
-        return "$geofenceTransitionString: $triggeringGeofencesIdsString"
-    }
-
-    private fun getTransitionString(transitionType: Int): String {
-        return when (transitionType) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> "geofence_transition_entered"
-            Geofence.GEOFENCE_TRANSITION_EXIT -> "geofence_transition_exited"
-            else -> "unknown_geofence_transition"
+        with(NotificationManagerCompat.from(this)) {
+            notify(1, builder.build()) //todo notificationId is a unique int for each notification that you must define
         }
     }
 }

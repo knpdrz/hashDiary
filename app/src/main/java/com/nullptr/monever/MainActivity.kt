@@ -2,9 +2,13 @@ package com.nullptr.monever
 
 import android.Manifest
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.os.Build
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.widget.Toast
@@ -24,6 +28,7 @@ import java.util.logging.Logger
 
 const val CREATE_NEW_LOG_REQUEST = 1
 const val LOG_FROM_INTENT = "LOG_FROM_INTENT"
+const val NOTIFICATION_CHANNEL_ID = "notif_channel"
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
     private val logger = Logger.getLogger("MainActivity")
@@ -37,6 +42,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        createNotificationChannel()
         checkLocationPermissions()
 
         readLogsFromDb()
@@ -92,7 +99,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        // super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_LOCATION) {
             if (grantResults.size == 1 && grantResults[0] == PERMISSION_GRANTED) {
                 logger.log(INFO, "yay, location permission granted, preparing geofences")
@@ -199,5 +205,24 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         //todo by lazy means?
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    private fun createNotificationChannel() {
+        //todo: info: Because you must create the notification channel before posting any notifications on Android 8.0 and higher,
+        // you should execute this code as soon as your app starts. It's safe to call this repeatedly because creating an existing notification channel performs no operation.
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }
