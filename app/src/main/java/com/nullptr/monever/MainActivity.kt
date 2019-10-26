@@ -14,6 +14,9 @@ import android.provider.BaseColumns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton
+import com.fangxu.allangleexpandablebutton.ButtonData
+import com.fangxu.allangleexpandablebutton.ButtonEventListener
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_ENTER
 import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_EXIT
@@ -43,16 +46,53 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        prepareMenuButton()
+
         createNotificationChannel()
         checkLocationPermissions()
 
         readLogsFromDb()
         prepareListView()
 
-        addLogButton.setOnClickListener {
-            createNewLog()
-        }
     }
+
+    private fun prepareMenuButton() {
+        val button = menuButton as AllAngleExpandableButton
+        val buttonsData = arrayListOf<ButtonData>()
+        val colors =
+            intArrayOf(R.color.colorAccent, R.color.colorAccentLight, R.color.colorAccentLight)
+        val drawable =
+            intArrayOf(
+                R.drawable.ic_menu_24dp,
+                R.drawable.ic_add_24dp, R.drawable.ic_map_24dp
+            )
+
+        for (i in drawable.indices) {
+            val buttonData = ButtonData.buildIconButton(applicationContext, drawable[i], 15f)
+            buttonData.setBackgroundColorId(this, colors[i])
+            buttonsData.add(buttonData)
+        }
+        button.buttonDatas = buttonsData
+
+        val buttonClickHandler = object : ButtonEventListener {
+            override fun onButtonClicked(index: Int) {
+                when (index) {
+                    1 -> createNewLog()
+                    2 -> openMap()
+                }
+            }
+
+            override fun onExpand() {
+                println("onExpand")
+            }
+
+            override fun onCollapse() {
+                println("onCollapse")
+            }
+        }
+        button.setButtonEventListener(buttonClickHandler)
+    }
+
 
     private fun checkLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(
@@ -82,10 +122,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 PERMISSION_REQUEST_LOCATION
             )
         } else {
-            Toast.makeText(
-                this, "gimme yo location",
-                Toast.LENGTH_LONG
-            ).show()
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -153,6 +189,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private fun createNewLog() {
         Intent(this, CreateLogActivity::class.java).also { createNewLogIntent ->
             startActivityForResult(createNewLogIntent, CREATE_NEW_LOG_REQUEST)
+        }
+    }
+
+    private fun openMap() {
+        Intent(this, MapsActivity::class.java).also { openMapIntent ->
+            startActivity(openMapIntent)
         }
     }
 

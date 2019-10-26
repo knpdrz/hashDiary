@@ -10,15 +10,14 @@
         android:id="@+id/logsLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="@string/logs"
-        android:gravity="center"
         android:layout_marginTop="@dimen/margin_big"
-        android:paddingBottom="@dimen/margin_big"
         android:fontFamily="sans-serif-condensed-medium"
+        android:gravity="center"
+        android:paddingBottom="@dimen/margin_big"
+        android:text="@string/logs"
         android:textSize="@dimen/text_big"
-        />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/logsListView"
@@ -31,14 +30,39 @@
 
     </ListView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addLogButton"
+    <com.fangxu.allangleexpandablebutton.AllAngleExpandableButton
+        android:id="@+id/menuButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
+        app:aebBlurBackground="false"
+        app:aebButtonElevation="4dp"
+        app:aebButtonGapDp="15dp"
+        app:aebEndAngleDegree="90"
+        app:aebIsSelectionMode="false"
+        app:aebMainButtonRotateAnimDurationMillis="250"
+        app:aebMainButtonRotateDegree="-135"
+        app:aebMainButtonSizeDp="56dp"
+        app:aebMainButtonTextColor="#ffff5656"
+        app:aebMainButtonTextSizeSp="10dp"
+        app:aebRippleColor="@color/colorAccent"
+        app:aebRippleEffect="true"
+        app:aebStartAngleDegree="90"
+        app:aebSubButtonSizeDp="50dp"
+        app:aebSubButtonTextColor="#ff0000ff"
+        app:aebSubButtonTextSizeSp="18dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_24dp">
+        app:srcCompat="@drawable/ic_add_24dp" />
 
-    </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+    <!-- <com.google.android.material.floatingactionbutton.FloatingActionButton
+         android:id="@+id/addLogButton"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="@dimen/fab_margin"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:srcCompat="@drawable/ic_add_24dp">
+     </com.google.android.material.floatingactionbutton.FloatingActionButton>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

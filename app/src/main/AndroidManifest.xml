@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.nullptr.monever">
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <receiver android:name=".GeofenceBroadcastReceiver"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".MapsActivity"
+            android:label="@string/title_activity_maps"/>
+
+        <receiver
+            android:name=".GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true"/>
-        <service android:name=".GeofenceTransitionsJobIntentService"
+
+        <service
+            android:name=".GeofenceTransitionsJobIntentService"
             android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
-        <activity android:name=".CreateLogActivity"></activity>
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <activity android:name=".CreateLogActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

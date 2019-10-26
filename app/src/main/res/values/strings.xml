@@ -8,4 +8,5 @@
     <string name="user_left_place">You are leaving %s, what\'s up?</string>
     <string name="channel_name">notificationChannel</string>
     <string name="channel_description">notification channel for info about entering or leaving user selected locations</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
