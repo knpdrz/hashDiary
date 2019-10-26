@@ -1,25 +1,54 @@
 package com.nullptr.monever
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.maps.CameraUpdateFactory
+import androidx.core.view.setPadding
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.sucho.placepicker.AddressData
+import com.sucho.placepicker.Constants.ADDRESS_INTENT
+import com.sucho.placepicker.Constants.PLACE_PICKER_REQUEST
+import com.sucho.placepicker.MapType
+import com.sucho.placepicker.PlacePicker
+import java.util.logging.Level
+import java.util.logging.Logger
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
-    private lateinit var mMap: GoogleMap
+    private val logger = Logger.getLogger("MapsActivity")
+    private lateinit var gMap: GoogleMap
+    private lateinit var mapFragment: SupportMapFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
+        mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        prepareLocationButton()
+    }
+
+    private fun prepareLocationButton() {
+        // changing default location button (square at the top right corner) to fab-like custom button
+        val locationButton =
+            (mapFragment.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(
+                Integer.parseInt("2")
+            ) as ImageView
+        val rlp = locationButton.layoutParams as RelativeLayout.LayoutParams
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0)
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE)
+        rlp.setMargins(0, 0, 100, 100)
+        locationButton.background = getDrawable(R.drawable.round_button)
+        locationButton.setImageDrawable(getDrawable(R.drawable.ic_my_location))
+        locationButton.setPadding(50)
     }
 
     /**
@@ -32,13 +61,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        gMap = googleMap
+        gMap.isMyLocationEnabled = true
+        gMap.setOnMapClickListener { openPlacePicker() }
+    }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-        mMap.isMyLocationEnabled = true
+    private fun openPlacePicker() {
+        val intent = PlacePicker.IntentBuilder()
+            .setLatLong(
+                52.2005,
+                20.9551
+            )
+            .showLatLong(true)
+            .setMapZoom(12.0f)
+            .hideMarkerShadow(true)
+            .setMarkerDrawable(R.drawable.ic_map_marker)
+            .setMarkerImageImageColor(R.color.colorPrimary)
+            .setFabColor(R.color.colorAccent)
+            .setPrimaryTextColor(R.color.colorAccent)
+            .setSecondaryTextColor(R.color.colorAccentLight)
+            .setMapType(MapType.NORMAL)
+            .onlyCoordinates(true)
+            .build(this)
+        startActivityForResult(intent, PLACE_PICKER_REQUEST)
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
+                val addressData = data?.getParcelableExtra<AddressData>(ADDRESS_INTENT)
+                logger.log(Level.INFO, "selected location $addressData")
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }
