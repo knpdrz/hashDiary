@@ -2,21 +2,22 @@ package com.nullptr.monever
 
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.View
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.sucho.placepicker.AddressData
 import com.sucho.placepicker.Constants.ADDRESS_INTENT
 import com.sucho.placepicker.Constants.DEFAULT_ZOOM
@@ -48,26 +49,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun displayUserLocations() {
-        val boundsBuilder = LatLngBounds.builder()
-        for(location in userLocations){
-            gMap.addMarker(MarkerOptions().position(location))
-            boundsBuilder.include(location)
+        if(userLocations.isNotEmpty()) {
+            val boundsBuilder = LatLngBounds.builder()
+            for (location in userLocations) {
+                addMarkerToMap(location)
+                boundsBuilder.include(location)
+            }
+            val bounds = boundsBuilder.build()
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 200)
+            gMap.moveCamera(cameraUpdate)
         }
-        val bounds = boundsBuilder.build()
-        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 50)
-        gMap.moveCamera(cameraUpdate)
     }
 
     private fun prepareLocationButton() {
-        // changing default location button (square at the top right corner) to fab-like custom button
+        // changing default location button (square) to fab-like custom button
         val locationButton =
             (mapFragment.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(
                 Integer.parseInt("2")
             ) as ImageView
-        val layoutParams = locationButton.layoutParams as RelativeLayout.LayoutParams
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0)
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE)
-        layoutParams.setMargins(0, 0, 30, 210)
 
         locationButton.background = getDrawable(R.drawable.round_button)
         locationButton.setImageDrawable(getDrawable(R.drawable.ic_my_location))
@@ -93,13 +92,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .showLatLong(true)
             .setMapZoom(12.0f)
             .hideMarkerShadow(true)
-            .setMarkerDrawable(R.drawable.ic_map_marker)
+            .setMarkerDrawable(R.drawable.ic_add_location_24dp)
             .setMarkerImageImageColor(R.color.colorPrimary)
             .setFabColor(R.color.colorAccent)
             .setPrimaryTextColor(R.color.colorAccent)
             .setSecondaryTextColor(R.color.colorAccentLight)
             .setMapType(MapType.NORMAL)
             .onlyCoordinates(true)
+            .hideMarkerShadow(false)
             .build(this)
         startActivityForResult(intent, PLACE_PICKER_REQUEST)
     }
@@ -117,13 +117,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun createNewUserLocation(addressData: AddressData){
-        val newLocation = LatLng(addressData.latitude, addressData.longitude)
-        userLocations.add(newLocation)
-        saveNewLocationToDb(newLocation)
-        gMap.addMarker(MarkerOptions().position(newLocation))
-
+        val location = LatLng(addressData.latitude, addressData.longitude)
+        userLocations.add(location)
+        saveNewLocationToDb(location)
+        addMarkerToMap(location)
         val update = CameraUpdateFactory.newLatLngZoom(
-            newLocation,
+            location,
             DEFAULT_ZOOM
         )
         gMap.moveCamera(update)
@@ -168,5 +167,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         val newRowId = db?.insert(LocationReaderContract.LocationEntry.TABLE_NAME, null, values)
         logger.log(Level.INFO, "saved location to db with id $newRowId")
+    }
+
+    private fun addMarkerToMap(location: LatLng){
+        gMap.addMarker(MarkerOptions().position(location).icon(bitmapDescriptorFromVector(this, R.drawable.ic_place_pink_24dp)))
+    }
+
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
+        return ContextCompat.getDrawable(context, vectorResId)?.run {
+            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            draw(Canvas(bitmap))
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
     }
 }

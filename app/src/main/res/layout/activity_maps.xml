@@ -21,5 +21,6 @@
         android:backgroundTint="@color/colorAccent"
         android:src="@drawable/ic_add_24dp"
         app:elevation="4dp"
+        app:backgroundTint="@null"
         app:tint="@null" />
 </FrameLayout>
