@@ -1,13 +1,11 @@
 package com.nullptr.monever
 
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
-import android.provider.BaseColumns
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +31,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val logger = Logger.getLogger("MapsActivity")
     private lateinit var gMap: GoogleMap
     private lateinit var mapFragment: SupportMapFragment
-    private var userLocations = mutableListOf<LatLng>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +45,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun displayUserLocations() {
+    private fun displayUserLocations(userLocations: List<LatLng>) {
         if(userLocations.isNotEmpty()) {
             val boundsBuilder = LatLngBounds.builder()
             for (location in userLocations) {
@@ -79,8 +76,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         prepareLocationButton()
 
-        readUserLocationsFromDb()
-        displayUserLocations()
+        var userLocations = LocationReader(this).readUserLocationsFromDb()
+        displayUserLocations(userLocations)
     }
 
     private fun openPlacePicker() {
@@ -118,55 +115,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun createNewUserLocation(addressData: AddressData){
         val location = LatLng(addressData.latitude, addressData.longitude)
-        userLocations.add(location)
-        saveNewLocationToDb(location)
+        LocationReader(this).saveNewLocationToDb(location)
         addMarkerToMap(location)
         val update = CameraUpdateFactory.newLatLngZoom(
             location,
             DEFAULT_ZOOM
         )
         gMap.moveCamera(update)
-    }
-
-    private fun readUserLocationsFromDb() {
-        val dbHelper = LocationReaderDbHelper(applicationContext)
-        val db = dbHelper.readableDatabase
-        val projection = arrayOf(
-            BaseColumns._ID,
-            LocationReaderContract.LocationEntry.COLUMN_NAME_LAT,
-            LocationReaderContract.LocationEntry.COLUMN_NAME_LNG
-        )
-        val cursor =
-            db.query(
-                LocationReaderContract.LocationEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-        with(cursor) {
-            while (moveToNext()) {
-                val lat =
-                    getDouble(getColumnIndexOrThrow(LocationReaderContract.LocationEntry.COLUMN_NAME_LAT))
-                val lng =
-                    getDouble(getColumnIndexOrThrow(LocationReaderContract.LocationEntry.COLUMN_NAME_LNG))
-
-                userLocations.add(LatLng(lat, lng))
-            }
-        }
-    }
-
-    private fun saveNewLocationToDb(location: LatLng) {
-        val dbHelper = LocationReaderDbHelper(applicationContext)
-        val db = dbHelper.writableDatabase
-        val values = ContentValues().apply {
-            put(LocationReaderContract.LocationEntry.COLUMN_NAME_LAT, location.latitude)
-            put(LocationReaderContract.LocationEntry.COLUMN_NAME_LNG, location.longitude)
-        }
-        val newRowId = db?.insert(LocationReaderContract.LocationEntry.TABLE_NAME, null, values)
-        logger.log(Level.INFO, "saved location to db with id $newRowId")
+        UserLocationsService(this).prepareGeofences(listOf(location))
     }
 
     private fun addMarkerToMap(location: LatLng){

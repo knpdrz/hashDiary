@@ -2,13 +2,8 @@ package com.nullptr.monever
 
 import android.Manifest
 import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Build
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.widget.Toast
@@ -17,12 +12,6 @@ import androidx.core.app.ActivityCompat
 import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton
 import com.fangxu.allangleexpandablebutton.ButtonData
 import com.fangxu.allangleexpandablebutton.ButtonEventListener
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_ENTER
-import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_EXIT
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationServices
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import java.util.logging.Level.INFO
@@ -37,10 +26,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private val logger = Logger.getLogger("MainActivity")
     private val PERMISSION_REQUEST_LOCATION = 66
 
-    private lateinit var geofencingClient: GeofencingClient
-
     private var logsList = arrayListOf<Log>()
     private lateinit var listAdapter: LogAdapter
+
+    private lateinit var userLocationsService: UserLocationsService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +37,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         prepareMenuButton()
 
-        createNotificationChannel()
+        userLocationsService = UserLocationsService(this)
+        userLocationsService.createNotificationChannel()
+
         checkLocationPermissions()
 
         readLogsFromDb()
         prepareListView()
-
     }
 
     private fun prepareMenuButton() {
@@ -82,17 +72,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 }
             }
 
-            override fun onExpand() {
-                println("onExpand")
-            }
-
-            override fun onCollapse() {
-                println("onCollapse")
-            }
+            override fun onExpand() {}
+            override fun onCollapse() {}
         }
         button.setButtonEventListener(buttonClickHandler)
     }
-
 
     private fun checkLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(
@@ -100,7 +84,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PERMISSION_GRANTED
         ) {
-            prepareGeofences()
+            userLocationsService.prepareGeofences(LocationReader(this).readUserLocationsFromDb())
         } else {
             requestLocationPermission()
         }
@@ -138,7 +122,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         if (requestCode == PERMISSION_REQUEST_LOCATION) {
             if (grantResults.size == 1 && grantResults[0] == PERMISSION_GRANTED) {
                 logger.log(INFO, "yay, location permission granted, preparing geofences")
-                prepareGeofences()
+                userLocationsService.prepareGeofences(LocationReader(this).readUserLocationsFromDb())
             } else {
                 Toast.makeText(
                     this, "you didn't give permission",
@@ -211,60 +195,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     logger.log(INFO, "logs list after new add $logsList")
                 }
             }
-        }
-    }
-
-    private fun createDummyGeofence(): Geofence {
-        return Geofence.Builder()
-            .setRequestId("dummy2")
-            .setCircularRegion(52.2004527, 20.95511, 9000f)
-            .setExpirationDuration(7200000)
-            .setTransitionTypes(GEOFENCE_TRANSITION_ENTER or GEOFENCE_TRANSITION_EXIT)
-            .build()
-    }
-
-    private fun getGeofencingRequest(geofence: Geofence): GeofencingRequest {
-        return GeofencingRequest.Builder().apply {
-            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-            addGeofence(geofence)
-        }.build()
-    }
-
-    private fun prepareGeofences() {
-        geofencingClient = LocationServices.getGeofencingClient(this)
-        val geofenceReq = getGeofencingRequest(createDummyGeofence())
-        geofencingClient.addGeofences(geofenceReq, geofencePendingIntent).run {
-            addOnSuccessListener {
-                logger.log(INFO, "geofence added!")
-            }
-            addOnFailureListener {
-                logger.log(INFO, "FAILED to add geofence! " + it.localizedMessage)
-            }
-        }
-    }
-
-    private val geofencePendingIntent: PendingIntent by lazy {
-        //todo by lazy means?
-        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
-
-    private fun createNotificationChannel() {
-        //todo: info: Because you must create the notification channel before posting any notifications on Android 8.0 and higher,
-        // you should execute this code as soon as your app starts. It's safe to call this repeatedly because creating an existing notification channel performs no operation.
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.channel_name)
-            val descriptionText = getString(R.string.channel_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            // Register the channel with the system
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
         }
     }
 }
