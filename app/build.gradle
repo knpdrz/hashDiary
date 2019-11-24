@@ -44,5 +44,8 @@ dependencies {
     implementation "com.android.support:support-compat:28.0.0"
     implementation 'com.github.uin3566:AllAngleExpandableButton:v1.2.0'
     implementation 'com.sucho:placepicker:1.0.0'
-    implementation 'com.google.android.material:material:1.1.0-beta01'
+    implementation 'com.google.android.material:material:1.2.0-alpha02'
+    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+    implementation 'com.google.firebase:firebase-database:19.2.0'
 }
+apply plugin: 'com.google.gms.google-services'
