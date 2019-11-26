@@ -62,11 +62,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         //dbTest()
     }
 
-    data class User(
-        var username: String? = "",
-        var email: String? = ""
-    )
-
     private fun dbTest() {
         val database = FirebaseDatabase.getInstance()
         val logsRef = database.getReference("logs")
