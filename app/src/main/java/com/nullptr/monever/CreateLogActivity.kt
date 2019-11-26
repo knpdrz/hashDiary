@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -16,17 +16,18 @@ import kotlinx.android.synthetic.main.activity_create_log.*
 import java.io.IOException
 import java.util.*
 import java.util.logging.Level
+import java.util.logging.Level.INFO
 import java.util.logging.Logger
 
 const val RECORD_AUDIO_REQUEST = 3
 
 class CreateLogActivity : AppCompatActivity() {
     val logger = Logger.getLogger("CreateLogActivity")
-    private var recorder: MediaRecorder? = null
-    private var recordButtonWrapper: RecordButton? = null
 
-    private var playButtonWrapper: PlayButton? = null
+    private var recorder: MediaRecorder? = null
     private var player: MediaPlayer? = null
+
+    private var playRecordButtonWrapper: RecordPlayButton? = null
 
     private var fileName: String = ""
 
@@ -35,7 +36,7 @@ class CreateLogActivity : AppCompatActivity() {
         setContentView(R.layout.activity_create_log)
 
         fileName = "${externalCacheDir.absolutePath}/audiorecordtest.3gp"
-        logger.log(Level.INFO, "file we're saving to is $fileName")
+        logger.log(INFO, "file we're saving to is $fileName")
 
         saveButton.setOnClickListener {
             Intent().also { resultIntent ->
@@ -54,8 +55,7 @@ class CreateLogActivity : AppCompatActivity() {
         }
 
         manageRecordingPermission()
-        recordButtonWrapper = RecordButton(recordButton)
-        playButtonWrapper = PlayButton(playButton)
+        playRecordButtonWrapper = RecordPlayButton(playRecordButton)
     }
 
     private fun saveLog(log: Log) {
@@ -106,7 +106,8 @@ class CreateLogActivity : AppCompatActivity() {
         )
     }
 
-    private fun startRecording() {   recorder = MediaRecorder().apply {
+    private fun startRecording() {
+        recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setOutputFile(fileName)
@@ -125,6 +126,7 @@ class CreateLogActivity : AppCompatActivity() {
     private fun stopRecording() {
         recorder?.apply {
             stop()
+            reset()
             release()
         }
         recorder = null
@@ -149,7 +151,7 @@ class CreateLogActivity : AppCompatActivity() {
                 prepare()
                 start()
             } catch (e: IOException) {
-                logger.log(Level.INFO, "playing prepare() failed")
+                logger.log(INFO, "playing prepare() failed")
             }
         }
     }
@@ -161,43 +163,53 @@ class CreateLogActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        recorder?.reset()
         recorder?.release()
         recorder = null
         player?.release()
         player = null
     }
 
-    internal inner class RecordButton(button: Button) {
-        var mStartRecording = true
+    enum class RecordPlayButtonState(val image: Int) {
+        IDLE(R.drawable.ic_recording_white_24dp),
+        RECORDING(R.drawable.ic_stop_white_24dp),
+        RECORDED(R.drawable.ic_play_arrow_white_24dp),
+        PLAYING(R.drawable.ic_stop_white_24dp)
+    }
+
+    internal inner class RecordPlayButton(button: ImageButton) {
+        var buttonState = RecordPlayButtonState.IDLE
 
         init {
-            button.text = "Start recording"
+            button.setImageResource(R.drawable.ic_mic_white_24dp) // "Start recording"
             button.setOnClickListener {
-                onRecord(mStartRecording)
-                val text = when (mStartRecording) {
-                    true -> "Stop recording"
-                    false -> "Start recording"
+                when (buttonState.name) {
+                    RecordPlayButtonState.IDLE.name -> {
+                        startRecording()
+                        buttonState = RecordPlayButtonState.RECORDING
+                        logger.log(INFO, "recording started")
+                    }
+                    RecordPlayButtonState.RECORDING.name -> {
+                        stopRecording()
+                        buttonState = RecordPlayButtonState.RECORDED
+                        logger.log(INFO, "recording stopped")
+                    }
+                    RecordPlayButtonState.RECORDED.name -> {
+                        startPlaying()
+                        buttonState = RecordPlayButtonState.PLAYING
+                        logger.log(INFO, "playing started")
+                    }
+                    RecordPlayButtonState.PLAYING.name -> {
+                        stopPlaying()
+                        buttonState = RecordPlayButtonState.RECORDED
+                        logger.log(INFO, "playing stopped")
+                    }
                 }
-                button.text = text
-                mStartRecording = !mStartRecording
+                button.setImageResource(buttonState.image)
             }
         }
     }
-
-    internal inner class PlayButton(button: Button) {
-        var mStartPlaying = true
-
-        init {
-            button.text = "Start playing"
-            button.setOnClickListener {
-                onPlay(mStartPlaying)
-                val text = when (mStartPlaying) {
-                    true -> "Stop playing"
-                    false -> "Start playing"
-                }
-                button.text = text
-                mStartPlaying = !mStartPlaying
-            }
-        }
-    }
+    //IDLE (dot) -> RECORDING (square) -> RECORDED (triangle) -> PLAYING (square)
+    //                                        ^                      |
+    //                                        |----------------------|
 }

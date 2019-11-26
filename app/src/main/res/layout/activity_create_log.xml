@@ -51,27 +51,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
-    <Button
-        android:id="@+id/recordButton"
+    <ImageButton
+        android:id="@+id/playRecordButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="472dp"
+        android:layout_marginLeft="100dp"
         android:layout_marginTop="@dimen/margin_big"
-        android:text="record"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/ic_recording_white_24dp"
+        android:backgroundTint="@color/colorAccent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/happinessRatingBar"/>
 
-    <Button
-        android:id="@+id/playButton"
+    <ImageButton
+        android:id="@+id/deleteRecordingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/ic_delete_white_24dp"
+        android:backgroundTint="@color/colorAccent"
         android:layout_marginTop="@dimen/margin_big"
-        android:text="play"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recordButton"/>
+        android:layout_marginRight="100dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/happinessRatingBar" />
 </androidx.constraintlayout.widget.ConstraintLayout>
