@@ -81,12 +81,14 @@ class CreateLogActivity : AppCompatActivity() {
         } else {
             false
         }
-        if (!permissionToRecordAccepted) Toast.makeText(
-            this,
-            "permission to startRecording denied",
-            Toast.LENGTH_SHORT
-        ).show()
-        //todo disable startRecording button
+        if (!permissionToRecordAccepted){
+            Toast.makeText(
+                this,
+                "permission to startRecording denied",
+                Toast.LENGTH_SHORT
+            ).show()
+            playRecordButton.isEnabled = false
+        }
     }
 
     private fun manageRecordingPermission() {
@@ -132,22 +134,14 @@ class CreateLogActivity : AppCompatActivity() {
         recorder = null
     }
 
-    private fun onRecord(start: Boolean) = if (start) {
-        startRecording()
-    } else {
-        stopRecording()
-    }
-
-    private fun onPlay(start: Boolean) = if (start) {
-        startPlaying()
-    } else {
-        stopPlaying()
-    }
-
     private fun startPlaying() {
         player = MediaPlayer().apply {
             try {
                 setDataSource(fileName)
+                setOnCompletionListener {
+                    playRecordButtonWrapper!!.buttonState = RecordPlayButtonState.RECORDED
+                    playRecordButton.setImageResource(RecordPlayButtonState.RECORDED.image)
+                }
                 prepare()
                 start()
             } catch (e: IOException) {
