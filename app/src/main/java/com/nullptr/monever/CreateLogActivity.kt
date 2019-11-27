@@ -8,16 +8,18 @@ import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Environment
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_create_log.*
+import java.io.File
 import java.io.IOException
 import java.util.*
-import java.util.logging.Level
 import java.util.logging.Level.INFO
 import java.util.logging.Logger
+
 
 const val RECORD_AUDIO_REQUEST = 3
 
@@ -29,14 +31,13 @@ class CreateLogActivity : AppCompatActivity() {
 
     private var playRecordButtonWrapper: RecordPlayButton? = null
 
-    private var fileName: String = ""
+    private var filePath: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_log)
 
-        fileName = "${externalCacheDir.absolutePath}/audiorecordtest.3gp"
-        logger.log(INFO, "file we're saving to is $fileName")
+        setUpRecordingFile()
 
         saveButton.setOnClickListener {
             Intent().also { resultIntent ->
@@ -58,6 +59,13 @@ class CreateLogActivity : AppCompatActivity() {
         playRecordButtonWrapper = RecordPlayButton(playRecordButton)
     }
 
+    private fun setUpRecordingFile() {
+        val fileName = "tmp.3gp"
+        val baseDir = Environment.getExternalStorageDirectory().absolutePath
+        val pathDir = "$baseDir/Android/data/com.nullptr.monever"
+        filePath = pathDir + File.separator + fileName
+    }
+
     private fun saveLog(log: Log) {
         val dbHelper = LogReaderDbHelper(applicationContext)
         val db = dbHelper.writableDatabase
@@ -66,8 +74,19 @@ class CreateLogActivity : AppCompatActivity() {
             put(LogReaderContract.LogEntry.COLUMN_NAME_HAPPY_RATING, log.happyRating)
             put(LogReaderContract.LogEntry.COLUMN_NAME_CREATION_DATE, log.creationDate?.time)
         }
+
+        renameRecordingFile(log.creationDate?.time.toString())
+
         val newRowId = db?.insert(LogReaderContract.LogEntry.TABLE_NAME, null, values)
-        logger.log(Level.INFO, "saved log to db with id $newRowId")
+        logger.log(INFO, "saved log to db with id $newRowId")
+    }
+
+    private fun renameRecordingFile(newRecordingName: String) {
+        val path = filePath.substringBeforeLast("/")
+        val from = File(path, "tmp.3gp")
+        val to = File(path, "$newRecordingName.3gp")
+        if (from.exists())
+            from.renameTo(to)
     }
 
     override fun onRequestPermissionsResult(
@@ -81,7 +100,7 @@ class CreateLogActivity : AppCompatActivity() {
         } else {
             false
         }
-        if (!permissionToRecordAccepted){
+        if (!permissionToRecordAccepted) {
             Toast.makeText(
                 this,
                 "permission to startRecording denied",
@@ -112,13 +131,13 @@ class CreateLogActivity : AppCompatActivity() {
         recorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            setOutputFile(fileName)
+            setOutputFile(filePath)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
 
             try {
                 prepare()
             } catch (e: IOException) {
-                logger.log(Level.INFO, "recording prepare() failed")
+                logger.log(INFO, "recording prepare() failed")
             }
 
             start()
@@ -137,7 +156,7 @@ class CreateLogActivity : AppCompatActivity() {
     private fun startPlaying() {
         player = MediaPlayer().apply {
             try {
-                setDataSource(fileName)
+                setDataSource(filePath)
                 setOnCompletionListener {
                     playRecordButtonWrapper!!.buttonState = RecordPlayButtonState.RECORDED
                     playRecordButton.setImageResource(RecordPlayButtonState.RECORDED.image)
