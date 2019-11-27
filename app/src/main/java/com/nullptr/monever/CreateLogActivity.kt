@@ -33,6 +33,8 @@ class CreateLogActivity : AppCompatActivity() {
 
     private var filePath: String = ""
 
+    private var wasRecordingAborted = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_log)
@@ -54,9 +56,20 @@ class CreateLogActivity : AppCompatActivity() {
                 finish()
             }
         }
+        prepareDeleteRecordingButton()
 
         manageRecordingPermission()
         playRecordButtonWrapper = RecordPlayButton(playRecordButton)
+    }
+
+    private fun prepareDeleteRecordingButton(){
+        deleteRecordingButton.setOnClickListener{
+            stopRecording()
+            stopPlaying()
+            playRecordButtonWrapper!!.buttonState = RecordPlayButtonState.IDLE
+            playRecordButton.setImageResource(RecordPlayButtonState.IDLE.image)
+            wasRecordingAborted = true
+        }
     }
 
     private fun setUpRecordingFile() {
@@ -75,7 +88,11 @@ class CreateLogActivity : AppCompatActivity() {
             put(LogReaderContract.LogEntry.COLUMN_NAME_CREATION_DATE, log.creationDate?.time)
         }
 
-        renameRecordingFile(log.creationDate?.time.toString())
+        if(!wasRecordingAborted){
+            renameRecordingFile(log.creationDate?.time.toString())
+        }else{
+            File(filePath).delete()
+        }
 
         val newRowId = db?.insert(LogReaderContract.LogEntry.TABLE_NAME, null, values)
         logger.log(INFO, "saved log to db with id $newRowId")
@@ -196,6 +213,7 @@ class CreateLogActivity : AppCompatActivity() {
         init {
             button.setImageResource(R.drawable.ic_mic_white_24dp) // "Start recording"
             button.setOnClickListener {
+                wasRecordingAborted = false
                 when (buttonState.name) {
                     RecordPlayButtonState.IDLE.name -> {
                         startRecording()
