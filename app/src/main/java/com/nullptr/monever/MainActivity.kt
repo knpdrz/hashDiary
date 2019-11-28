@@ -32,6 +32,7 @@ const val CREATE_NEW_LOG_REQUEST = 1
 const val SIGN_IN_REQUEST = 2
 const val LOG_FROM_INTENT = "LOG_FROM_INTENT"
 const val NOTIFICATION_CHANNEL_ID = "notif_channel"
+const val LOG_EXTRA = "LOG_EXTRA"
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
     private val logger = Logger.getLogger("MainActivity")
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         prepareMenuButton()
 
-       // signUserIn()
+        // signUserIn()
 
         createNotificationChannel()
 
@@ -70,12 +71,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 val value = dataSnapshot.getValue(String::class.java)
-                logger.log(INFO,"knpdrz Value is: $value")
+                logger.log(INFO, "knpdrz Value is: $value")
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read value
-                logger.log(INFO,"knpdrz Failed to read value.", error.toException())
+                logger.log(INFO, "knpdrz Failed to read value.", error.toException())
             }
         })
     }
@@ -217,6 +218,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private fun prepareListView() {
         listAdapter = LogAdapter(this, logsList)
         logsListView.adapter = listAdapter
+        logsListView.setOnItemClickListener { _, _, position, _ ->
+            val log = logsList[position]
+            Intent(applicationContext, LogDetailsActivity::class.java).also{
+                it.putExtra(LOG_EXTRA, log)
+                startActivity(it)
+            }
+        }
     }
 
     private fun createNewLog() {
@@ -253,7 +261,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     "You are logged in as ${user?.email}",
                     Toast.LENGTH_SHORT
                 ).show()
-            }else{
+            } else {
                 Toast.makeText(
                     this,
                     "There was an problem with login",
