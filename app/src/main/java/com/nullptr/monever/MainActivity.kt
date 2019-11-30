@@ -5,12 +5,15 @@ import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.provider.BaseColumns
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton
@@ -52,6 +55,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         setContentView(R.layout.activity_main)
 
         prepareMenuButton()
+        prepareGreetingButton()
+
+        handleSpecialGreeting()
 
         // signUserIn()
 
@@ -65,6 +71,14 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         prepareListView()
 
         //dbTest()
+    }
+
+    private fun handleSpecialGreeting() {
+        val sharedPref = getDefaultSharedPreferences(this) ?: return
+        val greetingEnabled = sharedPref.getBoolean(getString(R.string.special_greeting_enabled), false)
+        if(greetingEnabled){
+            Toast.makeText(this, "Hello oh mighty easter egg finder!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun dbTest() {
@@ -124,6 +138,47 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             override fun onCollapse() {}
         }
         button.setButtonEventListener(buttonClickHandler)
+    }
+
+    private fun prepareGreetingButton() {
+        addGreetingButton.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("Set easter egg greeting?")
+            builder.setCancelable(true)
+
+            builder.setPositiveButton(
+                "Yes!!"
+            ) { _: DialogInterface, _: Int ->
+                Toast.makeText(this, "Greeting set!", Toast.LENGTH_SHORT).show()
+                enableSpecialGreeting()
+            }
+
+            builder.setNegativeButton(
+                "No thanks"
+            )
+            { _: DialogInterface, _: Int ->
+                Toast.makeText(this, "Greeting not set :c", Toast.LENGTH_SHORT).show()
+                disableSpecialGreeting()
+            }
+
+            builder.create().show()
+        }
+    }
+
+    private fun enableSpecialGreeting() {
+        val sharedPref = getDefaultSharedPreferences(this)
+        with (sharedPref.edit()) {
+            putBoolean(getString(R.string.special_greeting_enabled), true)
+            apply()
+        }
+    }
+
+    private fun disableSpecialGreeting() {
+        val sharedPref = getDefaultSharedPreferences(this)
+        with (sharedPref.edit()) {
+            putBoolean(getString(R.string.special_greeting_enabled), false)
+            apply()
+        }
     }
 
     private fun checkLocationPermissions() {
@@ -230,7 +285,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         logsListView.adapter = listAdapter
         logsListView.setOnItemClickListener { _, _, position, _ ->
             val log = logsList[position]
-            Intent(applicationContext, LogDetailsActivity::class.java).also{
+            Intent(applicationContext, LogDetailsActivity::class.java).also {
                 it.putExtra(LOG_EXTRA, log)
                 startActivity(it)
             }
