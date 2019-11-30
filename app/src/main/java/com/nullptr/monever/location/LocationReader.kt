@@ -1,55 +1,80 @@
 package com.nullptr.monever.location
 
-import android.content.ContentValues
-import android.content.Context
-import android.provider.BaseColumns
 import com.google.android.gms.maps.model.LatLng
-import java.util.logging.Level
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import java.util.logging.Level.INFO
 import java.util.logging.Logger
+import kotlin.properties.Delegates
 
-class LocationReader(private val context: Context) {
+interface ValueChangedListener {
+    fun onValueChanged(newValue: List<LatLng>)
+}
+
+class LocationReader(listener: ValueChangedListener) {
     private val logger = Logger.getLogger("LocationReader")
+    private val database = FirebaseDatabase.getInstance()
+    private val locationsRef = database.getReference("locations").child("user1")//todo real user
 
-    fun readUserLocationsFromDb(): List<LatLng> {
-        val userLocations = mutableListOf<LatLng>()
-        val dbHelper = LocationReaderDbHelper(context)
-        val db = dbHelper.readableDatabase
-        val projection = arrayOf(
-            BaseColumns._ID,
-            LocationReaderContract.LocationEntry.COLUMN_NAME_LAT,
-            LocationReaderContract.LocationEntry.COLUMN_NAME_LNG
-        )
-        val cursor =
-            db.query(
-                LocationReaderContract.LocationEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-        with(cursor) {
-            while (moveToNext()) {
-                val lat =
-                    getDouble(getColumnIndexOrThrow(LocationReaderContract.LocationEntry.COLUMN_NAME_LAT))
-                val lng =
-                    getDouble(getColumnIndexOrThrow(LocationReaderContract.LocationEntry.COLUMN_NAME_LNG))
+    private var locationsList: List<LatLng> by Delegates.observable(
+        initialValue = listOf(),
+        onChange = { _, _, new ->
+            listener.onValueChanged(new)
+        })
 
-                userLocations.add(LatLng(lat, lng))
-            }
-        }
-        return userLocations
+    init {
+        prepareLocationsListener()
     }
 
     fun saveNewLocationToDb(location: LatLng) {
-        val dbHelper = LocationReaderDbHelper(context)
-        val db = dbHelper.writableDatabase
-        val values = ContentValues().apply {
-            put(LocationReaderContract.LocationEntry.COLUMN_NAME_LAT, location.latitude)
-            put(LocationReaderContract.LocationEntry.COLUMN_NAME_LNG, location.longitude)
+        val newLocationKey = locationsRef.push().key
+        if (newLocationKey != null) {
+            locationsRef.child(newLocationKey).setValue(location)
+        } else {
+            logger.log(INFO, "unable to save location $location to fajabejz")
         }
-        val newRowId = db?.insert(LocationReaderContract.LocationEntry.TABLE_NAME, null, values)
-        logger.log(Level.INFO, "saved location to db with id $newRowId")
+    }
+
+    private fun prepareLocationsListener() {
+        val locationsListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                val locationRaw = dataSnapshot.getValue(SimpleLocation::class.java)
+                if (locationRaw != null) {
+                    locationsList =
+                        locationsList + LatLng(locationRaw.latitude, locationRaw.longitude)
+                    logger.log(INFO, "fajabejz: new location! $locationRaw")
+                }
+            }
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                logger.log(INFO, "fajabejz: removed location! ${dataSnapshot.key}")
+                val locationRaw = dataSnapshot.getValue(SimpleLocation::class.java)
+                if (locationRaw != null) {
+                    locationsList =
+                        locationsList.filterNot { it.latitude == locationRaw.latitude && it.longitude == locationRaw.longitude }
+                    logger.log(INFO, "fajabejz: removed location! $locationRaw")
+                }
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                logger.log(
+                    INFO,
+                    "fajabejz: failed to load locations {}",
+                    databaseError.toException()
+                )
+
+            }
+        }
+        locationsRef.addChildEventListener(locationsListener)
     }
 }
+
+data class SimpleLocation(var latitude: Double = 0.0, var longitude: Double = 0.0)

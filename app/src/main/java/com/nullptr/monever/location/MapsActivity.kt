@@ -28,14 +28,18 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-    private val logger = Logger.getLogger("MapsActivity")
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListener{
+        private val logger = Logger.getLogger("MapsActivity")
     private lateinit var gMap: GoogleMap
     private lateinit var mapFragment: SupportMapFragment
+    private lateinit var locationReader: LocationReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        locationReader = LocationReader(this)
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -46,7 +50,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onValueChanged(userLocations: List<LatLng>) {
+        logger.log(Level.INFO, "retrieved ${userLocations.size} locations")
+        displayUserLocations(userLocations)
+    }
+
     private fun displayUserLocations(userLocations: List<LatLng>) {
+        logger.log(Level.INFO, "retrieved $userLocations locations")
+
+        gMap.clear()
+
         if(userLocations.isNotEmpty()) {
             val boundsBuilder = LatLngBounds.builder()
             for (location in userLocations) {
@@ -76,9 +89,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         gMap.isMyLocationEnabled = true
 
         prepareLocationButton()
-
-        var userLocations = LocationReader(this).readUserLocationsFromDb()
-        displayUserLocations(userLocations)
     }
 
     private fun openPlacePicker() {
@@ -116,7 +126,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun createNewUserLocation(addressData: AddressData){
         val location = LatLng(addressData.latitude, addressData.longitude)
-        LocationReader(this).saveNewLocationToDb(location)
+        locationReader.saveNewLocationToDb(location)
         addMarkerToMap(location)
         val update = CameraUpdateFactory.newLatLngZoom(
             location,

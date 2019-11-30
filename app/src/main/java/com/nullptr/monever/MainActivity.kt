@@ -40,15 +40,16 @@ const val SIGN_IN_REQUEST = 2
 const val LOG_FROM_INTENT = "LOG_FROM_INTENT"
 const val NOTIFICATION_CHANNEL_ID = "notif_channel"
 const val LOG_EXTRA = "LOG_EXTRA"
+const val PERMISSION_LOCATION_REQUEST = 66
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
     private val logger = Logger.getLogger("MainActivity")
-    private val PERMISSION_REQUEST_LOCATION = 66
 
     private var logsList = arrayListOf<Log>()
     private lateinit var listAdapter: LogAdapter
 
     private lateinit var userLocationsService: UserLocationsService
+    private lateinit var locationReader: LocationReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         createNotificationChannel()
 
         userLocationsService = UserLocationsService(this)
+      //  locationReader = LocationReader()
 
         checkLocationPermissions()
 
@@ -194,10 +196,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PERMISSION_GRANTED
         ) {
-            val userLocations = LocationReader(this).readUserLocationsFromDb()
+            /*val userLocations = locationReader.locationsList
+            logger.log(INFO, "retrieved ${userLocations.size} locations 1")
             if (userLocations.isNotEmpty()) {
                 //todo tmp userLocationsService.prepareGeofences(userLocations)
-            }
+            }*/
         } else {
             requestLocationPermission()
         }
@@ -216,13 +219,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSION_REQUEST_LOCATION
+                PERMISSION_LOCATION_REQUEST
             )
         } else {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSION_REQUEST_LOCATION
+                PERMISSION_LOCATION_REQUEST
             )
         }
     }
@@ -232,13 +235,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == PERMISSION_REQUEST_LOCATION) {
+        if (requestCode == PERMISSION_LOCATION_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PERMISSION_GRANTED) {
                 logger.log(INFO, "yay, location permission granted, preparing geofences")
-                val userLocations = LocationReader(this).readUserLocationsFromDb()
+               /* val userLocations = locationReader.locationsList
+                logger.log(INFO, "retrieved ${userLocations.size} locations 2")
+
                 if (userLocations.isNotEmpty()) {
                     //todo tmp userLocationsService.prepareGeofences(userLocations)
-                }
+                }*/
             } else {
                 Toast.makeText(
                     this, "you didn't give permission",
