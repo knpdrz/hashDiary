@@ -13,10 +13,10 @@ interface ValueChangedListener {
     fun onValueChanged(newValue: List<LatLng>)
 }
 
-class LocationReader(listener: ValueChangedListener) {
+class LocationReader(listener: ValueChangedListener, userId: String) {
     private val logger = Logger.getLogger("LocationReader")
     private val database = FirebaseDatabase.getInstance()
-    private val locationsRef = database.getReference("locations").child("user1")//todo real user
+    private val locationsRef = database.getReference("locations").child(userId)
 
     private var locationsList: List<LatLng> by Delegates.observable(
         initialValue = listOf(),
@@ -44,7 +44,6 @@ class LocationReader(listener: ValueChangedListener) {
                 if (locationRaw != null) {
                     locationsList =
                         locationsList + LatLng(locationRaw.latitude, locationRaw.longitude)
-                    logger.log(INFO, "fajabejz: new location! $locationRaw")
                 }
             }
 
@@ -52,12 +51,10 @@ class LocationReader(listener: ValueChangedListener) {
             }
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                logger.log(INFO, "fajabejz: removed location! ${dataSnapshot.key}")
                 val locationRaw = dataSnapshot.getValue(SimpleLocation::class.java)
                 if (locationRaw != null) {
                     locationsList =
                         locationsList.filterNot { it.latitude == locationRaw.latitude && it.longitude == locationRaw.longitude }
-                    logger.log(INFO, "fajabejz: removed location! $locationRaw")
                 }
             }
 

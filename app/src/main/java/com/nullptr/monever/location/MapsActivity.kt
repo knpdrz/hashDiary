@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.firebase.auth.FirebaseAuth
 import com.nullptr.monever.R
 import com.sucho.placepicker.AddressData
 import com.sucho.placepicker.Constants.ADDRESS_INTENT
@@ -25,11 +26,12 @@ import com.sucho.placepicker.MapType
 import com.sucho.placepicker.PlacePicker
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.util.logging.Level
+import java.util.logging.Level.INFO
 import java.util.logging.Logger
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListener{
-        private val logger = Logger.getLogger("MapsActivity")
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListener {
+    private val logger = Logger.getLogger("MapsActivity")
     private lateinit var gMap: GoogleMap
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var locationReader: LocationReader
@@ -38,7 +40,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        locationReader = LocationReader(this)
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.let{
+            logger.log(INFO, "retrieving locations for user $user")
+            locationReader = LocationReader(this, user.uid)
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = supportFragmentManager
@@ -51,16 +57,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListen
     }
 
     override fun onValueChanged(userLocations: List<LatLng>) {
-        logger.log(Level.INFO, "retrieved ${userLocations.size} locations")
+        logger.log(INFO, "retrieved ${userLocations.size} locations")
         displayUserLocations(userLocations)
     }
 
     private fun displayUserLocations(userLocations: List<LatLng>) {
-        logger.log(Level.INFO, "retrieved $userLocations locations")
+        logger.log(INFO, "retrieved $userLocations locations")
 
         gMap.clear()
 
-        if(userLocations.isNotEmpty()) {
+        if (userLocations.isNotEmpty()) {
             val boundsBuilder = LatLngBounds.builder()
             for (location in userLocations) {
                 addMarkerToMap(location)
@@ -117,14 +123,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListen
             if (resultCode == Activity.RESULT_OK) {
                 val addressData = data?.getParcelableExtra<AddressData>(ADDRESS_INTENT)
                 logger.log(Level.INFO, "selected location $addressData")
-                addressData?.let { createNewUserLocation(addressData)}
+                addressData?.let { createNewUserLocation(addressData) }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
-    private fun createNewUserLocation(addressData: AddressData){
+    private fun createNewUserLocation(addressData: AddressData) {
         val location = LatLng(addressData.latitude, addressData.longitude)
         locationReader.saveNewLocationToDb(location)
         addMarkerToMap(location)
@@ -136,16 +142,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListen
         UserLocationsService(this).prepareGeofences(listOf(location))
     }
 
-    private fun addMarkerToMap(location: LatLng){
-        gMap.addMarker(MarkerOptions().position(location).icon(bitmapDescriptorFromVector(this,
-            R.drawable.ic_place_pink_24dp
-        )))
+    private fun addMarkerToMap(location: LatLng) {
+        gMap.addMarker(
+            MarkerOptions().position(location).icon(
+                bitmapDescriptorFromVector(
+                    this,
+                    R.drawable.ic_place_pink_24dp
+                )
+            )
+        )
     }
 
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
         return ContextCompat.getDrawable(context, vectorResId)?.run {
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            val bitmap =
+                Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
             draw(Canvas(bitmap))
             BitmapDescriptorFactory.fromBitmap(bitmap)
         }

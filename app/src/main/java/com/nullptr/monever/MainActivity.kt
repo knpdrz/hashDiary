@@ -21,10 +21,6 @@ import com.fangxu.allangleexpandablebutton.ButtonData
 import com.fangxu.allangleexpandablebutton.ButtonEventListener
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.nullptr.monever.location.LocationReader
 import com.nullptr.monever.location.MapsActivity
 import com.nullptr.monever.location.UserLocationsService
@@ -58,9 +54,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         prepareMenuButton()
         prepareGreetingButton()
 
-        handleSpecialGreeting()
-
-        // signUserIn()
+        signUserIn()
 
         createNotificationChannel()
 
@@ -72,7 +66,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         readLogsFromDb()
         prepareListView()
 
-        //dbTest()
     }
 
     private fun handleSpecialGreeting() {
@@ -82,24 +75,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         if (greetingEnabled) {
             Toast.makeText(this, getString(R.string.special_greeting), Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun dbTest() {
-        val database = FirebaseDatabase.getInstance()
-        val logsRef = database.getReference("logs")
-        logsRef.child("iksde").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value = dataSnapshot.getValue(String::class.java)
-                logger.log(INFO, "knpdrz Value is: $value")
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
-                logger.log(INFO, "knpdrz Failed to read value.", error.toException())
-            }
-        })
     }
 
     private fun signUserIn() {
@@ -215,7 +190,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             Toast.makeText(
                 this, "we need you to give us permission to access location",
                 Toast.LENGTH_LONG
-            ).show() //todo long explanation for the first time
+            ).show()
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -325,8 +300,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                         resultIntent.getSerializableExtra(LOG_FROM_INTENT) as Log
                     logsList.add(newLog)
                     listAdapter.notifyDataSetChanged()
-
-                    logger.log(INFO, "logs list after new add $logsList")
                 }
             }
         } else if (requestCode == SIGN_IN_REQUEST) {
@@ -338,10 +311,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     "You are logged in as ${user?.email}",
                     Toast.LENGTH_SHORT
                 ).show()
+                handleSpecialGreeting()
             } else {
                 Toast.makeText(
                     this,
-                    "There was an problem with login",
+                    "There was a problem with login",
                     Toast.LENGTH_SHORT
                 ).show()
                 finish()
