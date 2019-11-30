@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.log
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import com.nullptr.monever.R
 import java.text.SimpleDateFormat
 
 const val datePattern = "dd/MM HH:mm"

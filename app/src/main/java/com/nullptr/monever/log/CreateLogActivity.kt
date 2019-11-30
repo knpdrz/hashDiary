@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.log
 
 import android.Manifest
 import android.app.Activity
@@ -13,6 +13,8 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.nullptr.monever.LOG_FROM_INTENT
+import com.nullptr.monever.R
 import kotlinx.android.synthetic.main.activity_create_log.*
 import java.io.File
 import java.io.IOException
@@ -66,7 +68,8 @@ class CreateLogActivity : AppCompatActivity() {
         deleteRecordingButton.setOnClickListener{
             stopRecording()
             stopPlaying()
-            playRecordButtonWrapper!!.buttonState = RecordPlayButtonState.IDLE
+            playRecordButtonWrapper!!.buttonState =
+                RecordPlayButtonState.IDLE
             playRecordButton.setImageResource(RecordPlayButtonState.IDLE.image)
             wasRecordingAborted = true
         }
@@ -175,7 +178,8 @@ class CreateLogActivity : AppCompatActivity() {
             try {
                 setDataSource(filePath)
                 setOnCompletionListener {
-                    playRecordButtonWrapper!!.buttonState = RecordPlayButtonState.RECORDED
+                    playRecordButtonWrapper!!.buttonState =
+                        RecordPlayButtonState.RECORDED
                     playRecordButton.setImageResource(RecordPlayButtonState.RECORDED.image)
                 }
                 prepare()
@@ -217,22 +221,26 @@ class CreateLogActivity : AppCompatActivity() {
                 when (buttonState.name) {
                     RecordPlayButtonState.IDLE.name -> {
                         startRecording()
-                        buttonState = RecordPlayButtonState.RECORDING
+                        buttonState =
+                            RecordPlayButtonState.RECORDING
                         logger.log(INFO, "recording started")
                     }
                     RecordPlayButtonState.RECORDING.name -> {
                         stopRecording()
-                        buttonState = RecordPlayButtonState.RECORDED
+                        buttonState =
+                            RecordPlayButtonState.RECORDED
                         logger.log(INFO, "recording stopped")
                     }
                     RecordPlayButtonState.RECORDED.name -> {
                         startPlaying()
-                        buttonState = RecordPlayButtonState.PLAYING
+                        buttonState =
+                            RecordPlayButtonState.PLAYING
                         logger.log(INFO, "playing started")
                     }
                     RecordPlayButtonState.PLAYING.name -> {
                         stopPlaying()
-                        buttonState = RecordPlayButtonState.RECORDED
+                        buttonState =
+                            RecordPlayButtonState.RECORDED
                         logger.log(INFO, "playing stopped")
                     }
                 }

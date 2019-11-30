@@ -22,6 +22,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.nullptr.monever.location.LocationReader
+import com.nullptr.monever.location.MapsActivity
+import com.nullptr.monever.location.UserLocationsService
+import com.nullptr.monever.log.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import java.util.logging.Level.INFO
@@ -210,7 +214,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                     getInt(getColumnIndexOrThrow(LogReaderContract.LogEntry.COLUMN_NAME_HAPPY_RATING))
                 val logCreationDate =
                     getLong(getColumnIndexOrThrow(LogReaderContract.LogEntry.COLUMN_NAME_CREATION_DATE))
-                logsList.add(Log(logText, logHappyRating, Date(logCreationDate)))
+                logsList.add(
+                    Log(
+                        logText,
+                        logHappyRating,
+                        Date(logCreationDate)
+                    )
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.log
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -6,6 +6,8 @@ import android.os.Environment
 import android.view.View.GONE
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import com.nullptr.monever.LOG_EXTRA
+import com.nullptr.monever.R
 import kotlinx.android.synthetic.main.activity_log_details.*
 import java.io.File
 import java.io.IOException

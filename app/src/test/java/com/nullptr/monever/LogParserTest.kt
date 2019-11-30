@@ -1,5 +1,6 @@
 package com.nullptr.monever
 
+import com.nullptr.monever.log.LogParser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

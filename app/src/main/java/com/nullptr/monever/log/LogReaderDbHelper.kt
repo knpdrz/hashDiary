@@ -1,16 +1,19 @@
-package com.nullptr.monever
+package com.nullptr.monever.log
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
-import com.nullptr.monever.LogReaderContract.LogEntry.COLUMN_NAME_CREATION_DATE
-import com.nullptr.monever.LogReaderContract.LogEntry.COLUMN_NAME_HAPPY_RATING
-import com.nullptr.monever.LogReaderContract.LogEntry.COLUMN_NAME_TEXT
-import com.nullptr.monever.LogReaderContract.LogEntry.TABLE_NAME
+import com.nullptr.monever.log.LogReaderContract.LogEntry.COLUMN_NAME_CREATION_DATE
+import com.nullptr.monever.log.LogReaderContract.LogEntry.COLUMN_NAME_HAPPY_RATING
+import com.nullptr.monever.log.LogReaderContract.LogEntry.COLUMN_NAME_TEXT
+import com.nullptr.monever.log.LogReaderContract.LogEntry.TABLE_NAME
 
 class LogReaderDbHelper(context: Context) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
+    SQLiteOpenHelper(context,
+        DATABASE_NAME, null,
+        DATABASE_VERSION
+    ){
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(SQL_CREATE_LOGS)
     }

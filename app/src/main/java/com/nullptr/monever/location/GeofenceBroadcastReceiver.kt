@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.location
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,7 +9,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let { ctx ->
             intent?.let { intent ->
-                GeofenceTransitionsJobIntentService().enqueueWork(ctx, intent)
+                GeofenceTransitionsJobIntentService()
+                    .enqueueWork(ctx, intent)
             }
         }
     }

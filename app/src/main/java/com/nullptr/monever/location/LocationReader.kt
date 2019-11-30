@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.location
 
 import android.content.ContentValues
 import android.content.Context

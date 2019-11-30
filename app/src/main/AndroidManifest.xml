@@ -15,18 +15,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".LogDetailsActivity"/>
+        <activity android:name=".log.LogDetailsActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".location.MapsActivity"
             android:label="@string/title_activity_maps" />
 
         <receiver
-            android:name=".GeofenceBroadcastReceiver"
+            android:name=".location.GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -43,11 +43,11 @@
         </receiver>
 
         <service
-            android:name=".GeofenceTransitionsJobIntentService"
+            android:name=".location.GeofenceTransitionsJobIntentService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <activity android:name=".CreateLogActivity" />
+        <activity android:name=".log.CreateLogActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

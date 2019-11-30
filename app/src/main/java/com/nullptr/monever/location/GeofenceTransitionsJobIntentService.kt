@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.location
 
 import android.app.PendingIntent
 import android.content.Context
@@ -10,6 +10,9 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_ENTER
 import com.google.android.gms.location.GeofencingEvent
+import com.nullptr.monever.NOTIFICATION_CHANNEL_ID
+import com.nullptr.monever.R
+import com.nullptr.monever.log.CreateLogActivity
 import java.util.logging.Level.INFO
 import java.util.logging.Logger
 
@@ -38,7 +41,8 @@ class GeofenceTransitionsJobIntentService : JobIntentService() {
     }
 
     private fun showNotification(placeName: String, userEntered: Boolean) {
-        val notificationText = if(userEntered) getString(R.string.user_reached_place, placeName) else getString(R.string.user_left_place, placeName)
+        val notificationText = if(userEntered) getString(R.string.user_reached_place, placeName) else getString(
+            R.string.user_left_place, placeName)
 
         val intent = Intent(this, CreateLogActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

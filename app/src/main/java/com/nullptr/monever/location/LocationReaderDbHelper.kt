@@ -1,15 +1,18 @@
-package com.nullptr.monever
+package com.nullptr.monever.location
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
-import com.nullptr.monever.LocationReaderContract.LocationEntry.COLUMN_NAME_LAT
-import com.nullptr.monever.LocationReaderContract.LocationEntry.COLUMN_NAME_LNG
-import com.nullptr.monever.LocationReaderContract.LocationEntry.TABLE_NAME
+import com.nullptr.monever.location.LocationReaderContract.LocationEntry.COLUMN_NAME_LAT
+import com.nullptr.monever.location.LocationReaderContract.LocationEntry.COLUMN_NAME_LNG
+import com.nullptr.monever.location.LocationReaderContract.LocationEntry.TABLE_NAME
 
 class LocationReaderDbHelper(context: Context) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
+    SQLiteOpenHelper(context,
+        DATABASE_NAME, null,
+        DATABASE_VERSION
+    ){
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(SQL_CREATE_LOCATIONS)
     }

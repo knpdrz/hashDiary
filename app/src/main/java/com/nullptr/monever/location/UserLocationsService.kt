@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.location
 
 import android.app.PendingIntent
 import android.content.Context
@@ -27,7 +27,9 @@ class UserLocationsService(private val context: Context) {
     private fun createGeofenceForLocation(location: LatLng): Geofence {
         return Geofence.Builder()
             .setRequestId(location.toString())
-            .setCircularRegion(location.latitude, location.longitude, GEOFENCE_RADIUS)
+            .setCircularRegion(location.latitude, location.longitude,
+                GEOFENCE_RADIUS
+            )
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
             .build()

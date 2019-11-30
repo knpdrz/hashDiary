@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.location
 
 import android.app.Activity
 import android.content.Context
@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.nullptr.monever.R
 import com.sucho.placepicker.AddressData
 import com.sucho.placepicker.Constants.ADDRESS_INTENT
 import com.sucho.placepicker.Constants.DEFAULT_ZOOM
@@ -126,7 +127,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addMarkerToMap(location: LatLng){
-        gMap.addMarker(MarkerOptions().position(location).icon(bitmapDescriptorFromVector(this, R.drawable.ic_place_pink_24dp)))
+        gMap.addMarker(MarkerOptions().position(location).icon(bitmapDescriptorFromVector(this,
+            R.drawable.ic_place_pink_24dp
+        )))
     }
 
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {

@@ -1,4 +1,4 @@
-package com.nullptr.monever
+package com.nullptr.monever.log
 
 import java.io.Serializable
 import java.util.*
