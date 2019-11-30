@@ -10,4 +10,10 @@
     <string name="channel_description">notification channel for info about entering or leaving user selected locations</string>
     <string name="title_activity_maps">Map</string>
     <string name="special_greeting_enabled">special_greeting_enabled</string>
+    <string name="special_greeting">Hello oh mighty easter egg finder!</string>
+    <string name="special_greeting_question">Set easter egg greeting?</string>
+    <string name="special_greeting_set">Greeting set!</string>
+    <string name="special_greeting_not_set">Greeting not set :c</string>
+    <string name="special_greeting_answer_no">No thanks</string>
+    <string name="special_greeting_answer_yes">Yes!!</string>
 </resources>

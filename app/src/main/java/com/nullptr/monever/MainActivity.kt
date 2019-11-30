@@ -75,9 +75,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     private fun handleSpecialGreeting() {
         val sharedPref = getDefaultSharedPreferences(this) ?: return
-        val greetingEnabled = sharedPref.getBoolean(getString(R.string.special_greeting_enabled), false)
-        if(greetingEnabled){
-            Toast.makeText(this, "Hello oh mighty easter egg finder!", Toast.LENGTH_SHORT).show()
+        val greetingEnabled =
+            sharedPref.getBoolean(getString(R.string.special_greeting_enabled), false)
+        if (greetingEnabled) {
+            Toast.makeText(this, getString(R.string.special_greeting), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -142,32 +143,38 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     private fun prepareGreetingButton() {
         addGreetingButton.setOnClickListener {
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage("Set easter egg greeting?")
-            builder.setCancelable(true)
-
-            builder.setPositiveButton(
-                "Yes!!"
-            ) { _: DialogInterface, _: Int ->
-                Toast.makeText(this, "Greeting set!", Toast.LENGTH_SHORT).show()
-                enableSpecialGreeting()
+            AlertDialog.Builder(this).apply {
+                setMessage(getString(R.string.special_greeting_question))
+                setCancelable(true)
+                setPositiveButton(
+                    getString(R.string.special_greeting_answer_yes)
+                ) { _: DialogInterface, _: Int ->
+                    Toast.makeText(
+                        context,
+                        getString(R.string.special_greeting_set),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    enableSpecialGreeting()
+                }
+                setNegativeButton(
+                    getString(R.string.special_greeting_answer_no)
+                )
+                { _: DialogInterface, _: Int ->
+                    Toast.makeText(
+                        context,
+                        getString(R.string.special_greeting_not_set),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    disableSpecialGreeting()
+                }
+                create().show()
             }
-
-            builder.setNegativeButton(
-                "No thanks"
-            )
-            { _: DialogInterface, _: Int ->
-                Toast.makeText(this, "Greeting not set :c", Toast.LENGTH_SHORT).show()
-                disableSpecialGreeting()
-            }
-
-            builder.create().show()
         }
     }
 
     private fun enableSpecialGreeting() {
         val sharedPref = getDefaultSharedPreferences(this)
-        with (sharedPref.edit()) {
+        with(sharedPref.edit()) {
             putBoolean(getString(R.string.special_greeting_enabled), true)
             apply()
         }
@@ -175,7 +182,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     private fun disableSpecialGreeting() {
         val sharedPref = getDefaultSharedPreferences(this)
-        with (sharedPref.edit()) {
+        with(sharedPref.edit()) {
             putBoolean(getString(R.string.special_greeting_enabled), false)
             apply()
         }
