@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".LogDetailsActivity"></activity>
+        <activity android:name=".LogDetailsActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -32,6 +32,14 @@
             <intent-filter>
                 <action android:name="com.aol.android.geofence.ACTION_RECEIVE_GEOFENCE" />
             </intent-filter>
+        </receiver>
+
+        <receiver android:name="WidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
         </receiver>
 
         <service
