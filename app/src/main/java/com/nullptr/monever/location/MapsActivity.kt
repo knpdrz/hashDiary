@@ -46,7 +46,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListen
             locationReader = LocationReader(this, user.uid)
         }
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -59,6 +58,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ValueChangedListen
     override fun onValueChanged(userLocations: List<LatLng>) {
         logger.log(INFO, "retrieved ${userLocations.size} locations")
         displayUserLocations(userLocations)
+        UserLocationsService(this).prepareGeofences(userLocations)
     }
 
     private fun displayUserLocations(userLocations: List<LatLng>) {

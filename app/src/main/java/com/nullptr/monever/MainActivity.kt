@@ -21,13 +21,11 @@ import com.fangxu.allangleexpandablebutton.ButtonData
 import com.fangxu.allangleexpandablebutton.ButtonEventListener
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
-import com.nullptr.monever.location.LocationReader
 import com.nullptr.monever.location.MapsActivity
 import com.nullptr.monever.location.UserLocationsService
 import com.nullptr.monever.log.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-import java.util.logging.Level.INFO
 import java.util.logging.Logger
 
 
@@ -45,7 +43,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private lateinit var listAdapter: LogAdapter
 
     private lateinit var userLocationsService: UserLocationsService
-    private lateinit var locationReader: LocationReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +56,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         createNotificationChannel()
 
         userLocationsService = UserLocationsService(this)
-      //  locationReader = LocationReader()
 
         checkLocationPermissions()
 
@@ -169,14 +165,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PERMISSION_GRANTED
-        ) {
-            /*val userLocations = locationReader.locationsList
-            logger.log(INFO, "retrieved ${userLocations.size} locations 1")
-            if (userLocations.isNotEmpty()) {
-                //todo tmp userLocationsService.prepareGeofences(userLocations)
-            }*/
-        } else {
+            ) != PERMISSION_GRANTED
+        ){
             requestLocationPermission()
         }
     }
@@ -211,15 +201,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         grantResults: IntArray
     ) {
         if (requestCode == PERMISSION_LOCATION_REQUEST) {
-            if (grantResults.size == 1 && grantResults[0] == PERMISSION_GRANTED) {
-                logger.log(INFO, "yay, location permission granted, preparing geofences")
-               /* val userLocations = locationReader.locationsList
-                logger.log(INFO, "retrieved ${userLocations.size} locations 2")
-
-                if (userLocations.isNotEmpty()) {
-                    //todo tmp userLocationsService.prepareGeofences(userLocations)
-                }*/
-            } else {
+            if (grantResults.size != 1 || grantResults[0] != PERMISSION_GRANTED) {
                 Toast.makeText(
                     this, "you didn't give permission",
                     Toast.LENGTH_LONG
@@ -324,10 +306,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     fun createNotificationChannel() {
-        //todo: info: Because you must create the notification channel before posting any notifications on Android 8.0 and higher,
-        // you should execute this code as soon as your app starts. It's safe to call this repeatedly because creating an existing notification channel performs no operation.
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.channel_name)
             val descriptionText = getString(R.string.channel_description)

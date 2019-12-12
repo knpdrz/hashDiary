@@ -57,7 +57,6 @@ class UserLocationsService(private val context: Context) {
     }
 
     private val geofencePendingIntent: PendingIntent by lazy {
-        //todo by lazy means?
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
         PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
